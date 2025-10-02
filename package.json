@@ -1,6 +1,6 @@
 {
     "name": "@al-hamoud/authx",
-    "version": "0.0.4",
+    "version": "1.0.0",
     "description": "Auth toolkit: Firebase JWKS verify + Supabase user ensure for Next.js Edge runtime",
     "main": "dist/index.cjs",
     "module": "dist/index.js",

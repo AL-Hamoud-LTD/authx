@@ -1,15 +1,121 @@
-# Examples for @al-hamoud/authx
+# Examples for @al-hamoud/authx v1.0.0
 
-This folder contains example snippets for building a simple `<Authx />` UI that:
+This folder contains comprehensive examples for the `<Authx />` component that now includes:
 
-- lets a user pick a country code (e.g. +44, +1) and enter a phone number,
-- auto-sends the OTP when the phone is valid (or allows manual send),
-- shows a 6-box OTP input and auto-verifies when complete,
-- verifies with your server endpoint that checks the Firebase ID token and ensures a Supabase user.
+## 🚀 Core Authentication Features
 
-Below is a full example you can copy into your Next.js app (`app/` directory).
+- Country code picker with phone number input
+- Auto-sends OTP when phone is valid (or manual send)
+- 6-box OTP input with auto-verification
+- Server verification with Firebase ID token and Supabase integration
 
-> Note: This is a demo component only. It requires `react`, `firebase` (client), and your own API route that uses `buildVerifyRouteHandler` from this library.
+## 🎨 Phase 1: Theme System (v0.0.4)
+
+- **Theme Support**: Light/dark themes with custom color schemes
+- **CSS Classes**: Component-level class customization
+- **Size Variants**: sm, md, lg, xl size options
+- **Text Customization**: Custom labels and visibility controls
+
+## 🎯 Phase 2: Advanced Styling (v0.1.0)
+
+- **Component Styling**: Individual style props for inputs, buttons, cards
+- **Layout Variants**: Vertical, horizontal, compact layouts
+- **CSS Variables**: Runtime theming with custom properties
+- **Validation Enhancement**: Custom validation displays
+
+## ✨ Phase 3: Animation & Responsive (v0.2.0)
+
+- **Animation System**: Fade, slide, scale animations with custom timing
+- **Responsive Design**: Breakpoint-aware adaptive layouts
+- **Accessibility**: WCAG compliance with screen reader support
+
+## 🎨 Phase 4: Advanced Design (v1.0.0)
+
+- **Shadow System**: Modern elevation with 8 shadow variants
+- **Custom Fonts**: Google Fonts integration with typography controls
+- **Gradient System**: Linear, radial, conic gradients for all components
+
+## 📋 Quick Examples
+
+### Basic Usage
+
+```tsx
+import { Authx } from '@al-hamoud/authx'
+
+export default function BasicAuth() {
+  return <Authx />
+}
+```
+
+### Premium Dark Theme (All Features)
+
+```tsx
+export default function PremiumAuth() {
+  return (
+    <Authx
+      // Phase 1: Theme System
+      theme="dark"
+      size="lg"
+      colorScheme={{ primary: '#8b5cf6', background: '#0f172a' }}
+      
+      // Phase 2: Layout & Styling  
+      layout="horizontal"
+      cssVariables={{ '--authx-primary-color': '#8b5cf6' }}
+      
+      // Phase 3: Animation & Responsive
+      animations={{ enabled: true, slideDirection: 'up', fadeIn: true }}
+      responsive={{ mobile: { size: 'md' }, desktop: { size: 'lg' } }}
+      
+      // Phase 4: Advanced Design
+      shadow="2xl"
+      fontFamily="Space Grotesk"
+      gradient={{
+        button: {
+          variant: 'linear',
+          direction: '45deg', 
+          stops: [
+            { color: '#8b5cf6', position: '0%' },
+            { color: '#c084fc', position: '100%' }
+          ]
+        }
+      }}
+    />
+  )
+}
+```
+
+### Glassmorphism Style
+
+```tsx
+export default function GlassAuth() {
+  return (
+    <Authx
+      shadow="lg"
+      gradient={{
+        card: {
+          variant: 'linear',
+          stops: [
+            { color: 'rgba(255, 255, 255, 0.25)', position: '0%' },
+            { color: 'rgba(255, 255, 255, 0.1)', position: '100%' }
+          ]
+        }
+      }}
+      cardStyle={{
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.18)'
+      }}
+    />
+  )
+}
+```
+
+## 📁 File Overview
+
+- `ui/Authx.tsx.example` - Comprehensive examples showcasing all features
+- `README.md` - This documentation with usage examples
+- `package.json` - Dependencies and setup instructions
+
+> **Note**: The component requires `react`, `firebase` (client), and your own API route that uses `buildVerifyRouteHandler` from this library.
 
 ## React Client (app/authx/page.tsx)
 

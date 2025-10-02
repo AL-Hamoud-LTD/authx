@@ -1,2 +1,448 @@
-/* Example only. Copy into your Next.js app to use. */
-// See examples/README.md for full code and instructions.
+/* 
+ * @al-hamoud/authx v1.0.0 - Comprehensive Examples
+ * Copy any of these examples into your Next.js app to use.
+ * 
+ * Features Showcase:
+ * - Phase 1: Theme system, CSS classes, size variants, text customization
+ * - Phase 2: Component styling, layout variants, CSS variables
+ * - Phase 3: Animations, responsive design, accessibility
+ * - Phase 4: Shadow system, custom fonts, gradients
+ */
+
+'use client'
+
+import { Authx } from '@al-hamoud/authx'
+
+// ===== BASIC USAGE =====
+export function BasicAuthx() {
+  return <Authx />
+}
+
+// ===== PHASE 1 EXAMPLES =====
+
+// Theme System
+export function DarkThemeAuthx() {
+  return (
+    <Authx 
+      theme="dark"
+      colorScheme={{
+        primary: '#8b5cf6',
+        background: '#1f2937',
+        text: '#f9fafb',
+        border: '#374151'
+      }}
+    />
+  )
+}
+
+// Size Variants
+export function SizeVariantsAuthx() {
+  return (
+    <div style={{ display: 'grid', gap: '2rem' }}>
+      <Authx size="sm" />
+      <Authx size="md" />
+      <Authx size="lg" />
+      <Authx size="xl" />
+    </div>
+  )
+}
+
+// CSS Classes
+export function CustomClassesAuthx() {
+  return (
+    <Authx 
+      className="my-auth-wrapper"
+      cardClassName="custom-card"
+      inputClassName="custom-input"
+      buttonClassName="custom-button"
+      labelClassName="custom-label"
+    />
+  )
+}
+
+// Custom Labels
+export function CustomLabelsAuthx() {
+  return (
+    <Authx 
+      labels={{
+        phoneNumber: "Enter Your Mobile Number",
+        sendCode: "Send Verification Code",
+        enterCode: "Enter 6-digit code",
+        verify: "Verify Now",
+        placeholder: "Your phone number"
+      }}
+    />
+  )
+}
+
+// ===== PHASE 2 EXAMPLES =====
+
+// Component Styling
+export function CustomStyledAuthx() {
+  return (
+    <Authx 
+      inputStyle={{
+        borderColor: '#3b82f6',
+        borderWidth: 2,
+        backgroundColor: '#f8fafc',
+        borderRadius: '12px'
+      }}
+      buttonStyle={{
+        backgroundColor: '#10b981',
+        borderRadius: '8px',
+        fontSize: '16px',
+        fontWeight: 'bold'
+      }}
+      cardStyle={{
+        backgroundColor: '#f1f5f9',
+        border: '2px solid #e2e8f0',
+        borderRadius: '20px',
+        padding: '24px'
+      }}
+    />
+  )
+}
+
+// Layout Variants
+export function LayoutVariantsAuthx() {
+  return (
+    <div style={{ display: 'grid', gap: '3rem' }}>
+      <div>
+        <h3>Vertical Layout</h3>
+        <Authx layout="vertical" />
+      </div>
+      <div>
+        <h3>Horizontal Layout</h3>
+        <Authx layout="horizontal" />
+      </div>
+      <div>
+        <h3>Compact Layout</h3>
+        <Authx layout="compact" />
+      </div>
+    </div>
+  )
+}
+
+// CSS Variables
+export function CSSVariablesAuthx() {
+  return (
+    <Authx 
+      cssVariables={{
+        '--authx-primary-color': '#8b5cf6',
+        '--authx-border-radius': '16px',
+        '--authx-font-size': '15px',
+        '--authx-spacing': '12px'
+      }}
+    />
+  )
+}
+
+// ===== PHASE 3 EXAMPLES =====
+
+// Animations
+export function AnimatedAuthx() {
+  return (
+    <div style={{ display: 'grid', gap: '2rem' }}>
+      <div>
+        <h3>Fade In Animation</h3>
+        <Authx
+          animations={{
+            enabled: true,
+            duration: '400ms',
+            fadeIn: true,
+            easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
+        />
+      </div>
+      <div>
+        <h3>Slide Up + Scale Animation</h3>
+        <Authx
+          animations={{
+            enabled: true,
+            duration: '500ms',
+            slideDirection: 'up',
+            scaleIn: true,
+            staggerDelay: 50
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
+// Responsive Design
+export function ResponsiveAuthx() {
+  return (
+    <Authx
+      responsive={{
+        mobile: { size: 'sm', layout: 'vertical', width: '100%' },
+        tablet: { size: 'md', layout: 'horizontal', width: '400px' },
+        desktop: { size: 'lg', layout: 'horizontal', width: '480px' },
+        breakpoints: {
+          mobile: '480px',
+          tablet: '768px',
+          desktop: '1024px'
+        }
+      }}
+    />
+  )
+}
+
+// Accessibility
+export function AccessibleAuthx() {
+  return (
+    <Authx
+      a11y={{
+        ariaLabel: 'Phone verification form with enhanced accessibility',
+        focusManagement: true,
+        announceSteps: true,
+        keyboardNavigation: true,
+        reducedMotion: true,
+        highContrast: true
+      }}
+    />
+  )
+}
+
+// ===== PHASE 4 EXAMPLES =====
+
+// Shadow System
+export function ShadowAuthx() {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem' }}>
+      <div>
+        <h4>Shadow: sm</h4>
+        <Authx shadow="sm" />
+      </div>
+      <div>
+        <h4>Shadow: lg</h4>
+        <Authx shadow="lg" />
+      </div>
+      <div>
+        <h4>Shadow: 2xl</h4>
+        <Authx shadow="2xl" />
+      </div>
+    </div>
+  )
+}
+
+// Custom Elevation
+export function ElevationAuthx() {
+  return (
+    <Authx
+      elevation={{
+        level: 5,
+        color: 'rgba(59, 130, 246, 0.15)',
+        blur: 20,
+        spread: 2
+      }}
+    />
+  )
+}
+
+// Custom Fonts
+export function FontAuthx() {
+  return (
+    <div style={{ display: 'grid', gap: '2rem' }}>
+      <div>
+        <h3>Roboto Font</h3>
+        <Authx fontFamily="Roboto" />
+      </div>
+      <div>
+        <h3>Advanced Typography</h3>
+        <Authx
+          fontFamily="Space Grotesk"
+          typography={{
+            body: {
+              weight: 400,
+              size: '16px',
+              lineHeight: '1.6',
+              letterSpacing: '0.02em'
+            },
+            label: {
+              weight: 600,
+              size: '14px'
+            },
+            button: {
+              weight: 700,
+              letterSpacing: '0.05em'
+            }
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
+// Gradients
+export function GradientAuthx() {
+  return (
+    <div style={{ display: 'grid', gap: '2rem' }}>
+      <div>
+        <h3>Background Gradient</h3>
+        <Authx
+          gradient={{
+            background: {
+              variant: 'linear',
+              direction: '135deg',
+              stops: [
+                { color: '#667eea', position: '0%' },
+                { color: '#764ba2', position: '100%' }
+              ]
+            }
+          }}
+        />
+      </div>
+      <div>
+        <h3>Button Gradient</h3>
+        <Authx
+          gradient={{
+            button: {
+              variant: 'linear',
+              direction: '45deg',
+              stops: [
+                { color: '#FE6B8B', position: '30%' },
+                { color: '#FF8E53', position: '90%' }
+              ]
+            }
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
+// ===== ADVANCED COMBINATIONS =====
+
+// Glassmorphism Style
+export function GlassmorphismAuthx() {
+  return (
+    <div style={{ 
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+      padding: '3rem',
+      borderRadius: '20px'
+    }}>
+      <Authx
+        shadow="lg"
+        fontFamily="SF Pro Display"
+        gradient={{
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
+          card: {
+            variant: 'linear',
+            direction: '135deg',
+            stops: [
+              { color: 'rgba(255, 255, 255, 0.25)', position: '0%' },
+              { color: 'rgba(255, 255, 255, 0.1)', position: '100%' }
+            ]
+          }
+        }}
+        cardStyle={{
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255, 255, 255, 0.18)',
+          borderRadius: '20px'
+        }}
+      />
+    </div>
+  )
+}
+
+// Premium Dark Theme with All Features
+export function PremiumDarkAuthx() {
+  return (
+    <Authx
+      // Phase 1: Theme System
+      theme="dark"
+      size="lg"
+      colorScheme={{
+        primary: '#8b5cf6',
+        background: '#0f172a',
+        text: '#f1f5f9'
+      }}
+      
+      // Phase 2: Layout & Styling
+      layout="horizontal"
+      inputStyle={{ borderColor: '#8b5cf6' }}
+      cssVariables={{
+        '--authx-primary-color': '#8b5cf6',
+        '--authx-border-radius': '16px'
+      }}
+      
+      // Phase 3: Animation & Responsive
+      animations={{
+        enabled: true,
+        duration: '400ms',
+        slideDirection: 'up',
+        fadeIn: true,
+        scaleIn: true,
+        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+      }}
+      responsive={{
+        mobile: { size: 'md', layout: 'vertical' },
+        desktop: { size: 'lg', layout: 'horizontal' }
+      }}
+      
+      // Phase 4: Advanced Design
+      shadow="2xl"
+      fontFamily="Space Grotesk"
+      elevation={{
+        level: 10,
+        color: 'rgba(139, 92, 246, 0.25)',
+        blur: 30,
+        spread: 0
+      }}
+      gradient={{
+        background: {
+          variant: 'linear',
+          direction: '135deg',
+          stops: [
+            { color: '#0f172a', position: '0%' },
+            { color: '#1e293b', position: '50%' },
+            { color: '#334155', position: '100%' }
+          ]
+        },
+        button: {
+          variant: 'linear',
+          direction: '45deg',
+          stops: [
+            { color: '#8b5cf6', position: '0%' },
+            { color: '#a855f7', position: '50%' },
+            { color: '#c084fc', position: '100%' }
+          ]
+        }
+      }}
+      typography={{
+        body: { weight: 400, letterSpacing: '0.01em' },
+        label: { weight: 600, letterSpacing: '0.02em' },
+        button: { weight: 700, letterSpacing: '0.05em' }
+      }}
+    />
+  )
+}
+
+// ===== USAGE IN YOUR APP =====
+
+export default function AuthxExamples() {
+  return (
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+      <h1>Authx Library Examples</h1>
+      <p>Choose any example below and copy the code for your use case:</p>
+      
+      <section>
+        <h2>🚀 Quick Start</h2>
+        <BasicAuthx />
+      </section>
+      
+      <section>
+        <h2>🎨 Premium Dark Theme (All Features)</h2>
+        <PremiumDarkAuthx />
+      </section>
+      
+      <section>
+        <h2>💎 Glassmorphism Style</h2>
+        <GlassmorphismAuthx />
+      </section>
+      
+      {/* Add more examples as needed */}
+    </div>
+  )
+}
