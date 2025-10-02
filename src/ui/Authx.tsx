@@ -15,6 +15,35 @@ const COUNTRIES = {
 
 export type CountryCode = keyof typeof COUNTRIES
 
+// Phase 1 Enhancement Types
+export type ThemeType = 'light' | 'dark' | 'custom'
+
+export type ColorScheme = {
+  primary?: string
+  secondary?: string
+  background?: string
+  text?: string
+  border?: string
+  error?: string
+  success?: string
+}
+
+export type SizeVariant = 'sm' | 'md' | 'lg' | 'xl'
+
+export type CustomLabels = {
+  phoneNumber?: string
+  sendCode?: string
+  enterCode?: string
+  verify?: string
+  placeholder?: string
+}
+
+export type VisibilityControls = {
+  showLabels?: boolean
+  showFlags?: boolean
+  showDialCode?: boolean
+}
+
 function ensureFirebase(config: FirebaseOptions) {
   if (!getApps().length) initializeApp(config)
 }
@@ -32,12 +61,186 @@ function toE164(country: CountryCode, local: string) {
 }
 
 export type AuthxProps = {
+  // Existing props (unchanged)
   verifyEndpoint?: string
   firebaseConfig?: FirebaseOptions
   initialCountry?: CountryCode
+  
+  // Phase 1: Theme System
+  theme?: ThemeType
+  colorScheme?: ColorScheme
+  
+  // Phase 1: CSS Classes Support
+  className?: string
+  cardClassName?: string
+  inputClassName?: string
+  buttonClassName?: string
+  labelClassName?: string
+  
+  // Phase 1: Size Variants
+  size?: SizeVariant
+  width?: string
+  borderRadius?: string
+  padding?: string
+  
+  // Phase 1: Text Customization
+  labels?: CustomLabels
+  visibility?: VisibilityControls
 }
 
-export default function Authx({ verifyEndpoint = '/api/auth/verify-id-token', firebaseConfig: firebaseConfigProp, initialCountry = 'GB' }: AuthxProps) {
+// Helper functions for Phase 1 enhancements
+function getThemeColors(theme: ThemeType = 'light', colorScheme?: ColorScheme): Required<ColorScheme> {
+  const baseColors = {
+    light: {
+      primary: '#2563eb',
+      secondary: '#f3f4f6',
+      background: '#ffffff',
+      text: '#111827',
+      border: '#e5e7eb',
+      error: '#ef4444',
+      success: '#10b981'
+    },
+    dark: {
+      primary: '#3b82f6',
+      secondary: '#374151',
+      background: '#1f2937',
+      text: '#f9fafb',
+      border: '#4b5563',
+      error: '#f87171',
+      success: '#34d399'
+    },
+    custom: {
+      primary: '#2563eb',
+      secondary: '#f3f4f6',
+      background: '#ffffff',
+      text: '#111827',
+      border: '#e5e7eb',
+      error: '#ef4444',
+      success: '#10b981'
+    }
+  }
+  
+  return {
+    ...baseColors[theme],
+    ...colorScheme
+  }
+}
+
+function getSizeConfig(size: SizeVariant = 'md') {
+  const configs = {
+    sm: { padding: '12px', borderRadius: '8px', fontSize: '13px', height: 40 },
+    md: { padding: '16px', borderRadius: '12px', fontSize: '14px', height: 48 },
+    lg: { padding: '20px', borderRadius: '16px', fontSize: '16px', height: 56 },
+    xl: { padding: '24px', borderRadius: '20px', fontSize: '18px', height: 64 }
+  }
+  return configs[size]
+}
+
+function getCustomLabels(labels?: CustomLabels): Required<CustomLabels> {
+  return {
+    phoneNumber: 'Phone Number',
+    sendCode: 'Send Verification Code',
+    enterCode: 'Enter 6-digit code',
+    verify: 'Verify',
+    placeholder: 'Enter your phone number',
+    ...labels
+  }
+}
+
+function getEnhancedStyles(themeColors: Required<ColorScheme>, sizeConfig: any, customWidth?: string, customBorderRadius?: string, customPadding?: string) {
+  return {
+    cardStyle: {
+      background: themeColors.background,
+      borderColor: themeColors.border,
+      borderRadius: customBorderRadius ? parseInt(customBorderRadius) : parseInt(sizeConfig.borderRadius),
+      padding: customPadding || sizeConfig.padding,
+      color: themeColors.text
+    },
+    labelStyle: {
+      color: themeColors.text,
+      fontSize: sizeConfig.fontSize
+    },
+    countryBoxStyle: {
+      borderColor: themeColors.border,
+      backgroundColor: themeColors.secondary,
+      height: sizeConfig.height,
+      borderRadius: customBorderRadius ? parseInt(customBorderRadius) : parseInt(sizeConfig.borderRadius)
+    },
+    inputStyleEnhanced: {
+      height: sizeConfig.height,
+      borderColor: themeColors.border,
+      color: themeColors.text,
+      fontSize: sizeConfig.fontSize,
+      borderRadius: customBorderRadius ? parseInt(customBorderRadius) : parseInt(sizeConfig.borderRadius),
+      backgroundColor: themeColors.background
+    },
+    buttonStyleEnhanced: {
+      height: sizeConfig.height,
+      backgroundColor: themeColors.primary,
+      color: themeColors.background,
+      fontSize: sizeConfig.fontSize,
+      borderRadius: customBorderRadius ? parseInt(customBorderRadius) : parseInt(sizeConfig.borderRadius)
+    },
+    otpInputStyle: {
+      borderColor: themeColors.border,
+      color: themeColors.text,
+      backgroundColor: themeColors.background,
+      borderRadius: customBorderRadius ? parseInt(customBorderRadius) : parseInt(sizeConfig.borderRadius)
+    },
+    errorBoxStyle: {
+      backgroundColor: themeColors.error + '20',
+      color: themeColors.error,
+      borderColor: themeColors.error + '40',
+      borderRadius: customBorderRadius ? parseInt(customBorderRadius) : parseInt(sizeConfig.borderRadius)
+    },
+    statusBoxStyle: {
+      backgroundColor: themeColors.primary + '20',
+      color: themeColors.primary,
+      borderColor: themeColors.primary + '40',
+      borderRadius: customBorderRadius ? parseInt(customBorderRadius) : parseInt(sizeConfig.borderRadius)
+    }
+  }
+}
+
+export default function Authx({ 
+  // Existing props (unchanged)
+  verifyEndpoint = '/api/auth/verify-id-token', 
+  firebaseConfig: firebaseConfigProp, 
+  initialCountry = 'GB',
+  
+  // Phase 1 new props
+  theme = 'light',
+  colorScheme,
+  className,
+  cardClassName,
+  inputClassName,
+  buttonClassName,
+  labelClassName,
+  size = 'md',
+  width,
+  borderRadius,
+  padding,
+  labels,
+  visibility = { showLabels: true, showFlags: true, showDialCode: true }
+}: AuthxProps) {
+  // Phase 1: Compute enhanced styles (before any existing logic)
+  const themeColors = getThemeColors(theme, colorScheme)
+  const sizeConfig = getSizeConfig(size)
+  const customLabels = getCustomLabels(labels)
+  const enhancedStyles = getEnhancedStyles(themeColors, sizeConfig, width, borderRadius, padding)
+  
+  // Destructure enhanced styles for easier use
+  const {
+    cardStyle,
+    labelStyle,
+    countryBoxStyle,
+    inputStyleEnhanced,
+    buttonStyleEnhanced,
+    otpInputStyle,
+    errorBoxStyle,
+    statusBoxStyle
+  } = enhancedStyles
+  
   const firebaseConfig = useMemo<FirebaseOptions>(() => {
     if (firebaseConfigProp) return firebaseConfigProp
     const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY
@@ -170,13 +373,28 @@ export default function Authx({ verifyEndpoint = '/api/auth/verify-id-token', fi
   }
 
   return (
-    <div style={{ maxWidth: 420, margin: '0 auto', fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div 
+      className={className}
+      style={{ 
+        maxWidth: width || 420, 
+        margin: '0 auto', 
+        fontFamily: 'Inter, system-ui, sans-serif',
+        ...(padding && { padding }),
+        ...(borderRadius && { borderRadius })
+      }}
+    >
       {step === 'phone' && (
-        <div style={card}>
-          <label style={label}>Phone Number</label>
+        <div style={{...card, ...cardStyle}} className={cardClassName}>
+          {visibility.showLabels && (
+            <label style={{...label, ...labelStyle}} className={labelClassName}>
+              {customLabels.phoneNumber}
+            </label>
+          )}
           <div style={{ display: 'flex', gap: 8 }}>
-            <div style={countryBox}>
-              <span style={{ marginRight: 6 }}>{COUNTRIES[country].flag}</span>
+            <div style={{...countryBox, ...countryBoxStyle}}>
+              {visibility.showFlags && (
+                <span style={{ marginRight: 6 }}>{COUNTRIES[country].flag}</span>
+              )}
               <select
                 aria-label='Country'
                 value={country}
@@ -189,34 +407,44 @@ export default function Authx({ verifyEndpoint = '/api/auth/verify-id-token', fi
                   </option>
                 ))}
               </select>
-              <span style={{ marginLeft: 6, color: '#111827', fontWeight: 600 }}>{COUNTRIES[country].dial}</span>
+              {visibility.showDialCode && (
+                <span style={{ marginLeft: 6, color: themeColors.text, fontWeight: 600 }}>
+                  {COUNTRIES[country].dial}
+                </span>
+              )}
             </div>
             <input
               type='tel'
-              placeholder='Enter your phone number'
+              placeholder={customLabels.placeholder}
               value={localPhone}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalPhone(e.target.value)}
               disabled={sending}
-              style={inputStyle}
+              style={{...inputStyle, ...inputStyleEnhanced}}
+              className={inputClassName}
             />
           </div>
           <button
             type='button'
             onClick={handleSend}
             disabled={!valid || sending}
-            style={{ ...buttonStyle, opacity: !valid || sending ? 0.6 : 1 }}
+            style={{ ...buttonStyle, ...buttonStyleEnhanced, opacity: !valid || sending ? 0.6 : 1 }}
+            className={buttonClassName}
           >
-            Send Verification Code
+            {customLabels.sendCode}
           </button>
-          {!!error && <div style={errorBox}>{error}</div>}
-          {!!status && <div style={statusBox}>{status}</div>}
+          {!!error && <div style={{...errorBox, ...errorBoxStyle}}>{error}</div>}
+          {!!status && <div style={{...statusBox, ...statusBoxStyle}}>{status}</div>}
           <div id='authx-recaptcha' />
         </div>
       )}
 
       {step === 'otp' && (
-        <div style={card}>
-          <label style={label}>Enter 6-digit code</label>
+        <div style={{...card, ...cardStyle}} className={cardClassName}>
+          {visibility.showLabels && (
+            <label style={{...label, ...labelStyle}} className={labelClassName}>
+              {customLabels.enterCode}
+            </label>
+          )}
           <div style={{ display: 'flex', gap: 8, justifyContent: 'space-between' }}>
             {otp.map((d, i) => (
               <input
@@ -226,7 +454,7 @@ export default function Authx({ verifyEndpoint = '/api/auth/verify-id-token', fi
                 maxLength={1}
                 value={d}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onOtpChange(i, e.target.value)}
-                style={otpInput}
+                style={{...otpInput, ...otpInputStyle}}
                 aria-label={`Digit ${i + 1}`}
               />
             ))}
@@ -235,21 +463,22 @@ export default function Authx({ verifyEndpoint = '/api/auth/verify-id-token', fi
             type='button'
             onClick={handleVerify}
             disabled={sending || otpValue.length !== 6}
-            style={{ ...buttonStyle, backgroundColor: '#16a34a' }}
+            style={{ ...buttonStyle, ...buttonStyleEnhanced, backgroundColor: themeColors.success }}
+            className={buttonClassName}
           >
-            Verify
+            {customLabels.verify}
           </button>
-          {!!error && <div style={errorBox}>{error}</div>}
-          {!!status && <div style={statusBox}>{status}</div>}
+          {!!error && <div style={{...errorBox, ...errorBoxStyle}}>{error}</div>}
+          {!!status && <div style={{...statusBox, ...statusBoxStyle}}>{status}</div>}
         </div>
       )}
 
-      {step === 'done' && <div style={card}>Phone verified successfully.</div>}
+      {step === 'done' && <div style={{...card, ...cardStyle}} className={cardClassName}>Phone verified successfully.</div>}
     </div>
   )
 }
 
-// Styles
+// Original styles (preserved exactly)
 const card: React.CSSProperties = { background: '#fff', borderRadius: 16, padding: 16, boxShadow: '0 10px 30px rgba(0,0,0,0.08)', display: 'grid', gap: 12 }
 const label: React.CSSProperties = { fontSize: 14, color: '#374151', fontWeight: 600 }
 const countryBox: React.CSSProperties = { display: 'flex', alignItems: 'center', padding: '0 8px', borderRadius: 12, border: '1px solid #e5e7eb', height: 48, background: '#f9fafb' }
