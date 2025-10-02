@@ -1,0 +1,56 @@
+{
+    "name": "@al-hamoud/authx",
+    "version": "0.0.2",
+    "description": "Auth toolkit: Firebase JWKS verify + Supabase user ensure for Next.js Edge runtime",
+    "main": "dist/index.cjs",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs"
+        }
+    },
+    "files": [
+        "dist",
+        "README.md"
+    ],
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "tsup src/index.ts --format esm,cjs --dts",
+        "prepublishOnly": "npm run build"
+    },
+    "keywords": [
+        "firebase",
+        "supabase",
+        "auth",
+        "authentication",
+        "nextjs",
+        "edge",
+        "jwt",
+        "jwks",
+        "phone-auth",
+        "typescript"
+    ],
+    "author": "Al Hamoud",
+    "license": "ISC",
+    "type": "module",
+    "private": false,
+    "devDependencies": {
+        "@types/react": "^18.3.25",
+        "firebase": "^12.3.0",
+        "tsup": "^8.5.0",
+        "typescript": "^5.9.3"
+    },
+    "dependencies": {
+        "@al-hamoud/authx": "^0.0.2",
+        "@supabase/supabase-js": "^2.58.0",
+        "jose": "^6.1.0"
+    },
+    "peerDependencies": {
+        "firebase": ">=12",
+        "react": ">=18",
+        "react-dom": ">=18"
+    }
+}
