@@ -181,8 +181,19 @@ function isValidE164(e164: string) {
   return /^\+\d{10,15}$/.test(e164)
 }
 
-function toE164(country: CountryCode, local: string, countries = COUNTRIES) {
-  const { dial, min, max } = countries[country]
+function toE164(country: CountryCode, local: string, countries: Record<string, { name: string; dial: string; flag: string; min: number; max: number }> = COUNTRIES) {
+  const countryInfo = countries[country]
+  if (!countryInfo) {
+    // Fallback to default countries if country not found
+    const fallbackInfo = COUNTRIES[country as keyof typeof COUNTRIES]
+    if (!fallbackInfo) return { e164: '', valid: false }
+    const { dial, min, max } = fallbackInfo
+    const digits = local.replace(/\D/g, '')
+    const e164 = `${dial}${digits}`
+    const valid = digits.length >= min && digits.length <= max && isValidE164(e164)
+    return { e164, valid }
+  }
+  const { dial, min, max } = countryInfo
   const digits = local.replace(/\D/g, '')
   const e164 = `${dial}${digits}`
   const valid = digits.length >= min && digits.length <= max && isValidE164(e164)
@@ -194,7 +205,7 @@ export type AuthxProps = {
   verifyEndpoint?: string
   firebaseConfig?: FirebaseOptions
   initialCountry?: CountryCode
-  countries?: typeof COUNTRIES
+  countries?: Record<string, { name: string; dial: string; flag: string; min: number; max: number }>
   
   // Phase 1: Theme System
   theme?: ThemeType

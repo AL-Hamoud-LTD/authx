@@ -112,15 +112,31 @@ You can customize the available countries in the phone number picker:
 ```tsx
 import { Authx, COUNTRIES } from '@al-hamoud/authx'
 
-// Use only specific countries
+// Use only specific countries (v1.2.1+)
 const customCountries = {
   GB: COUNTRIES.GB,
   US: COUNTRIES.US,
-  AE: COUNTRIES.AE,
 }
 
 <Authx countries={customCountries} />
 ```
+
+```tsx
+// Add your own custom countries
+const extendedCountries = {
+  ...COUNTRIES,
+  CA: { name: 'Canada', dial: '+1', flag: '🇨🇦', min: 10, max: 10 },
+  AU: { name: 'Australia', dial: '+61', flag: '🇦🇺', min: 9, max: 9 },
+}
+
+<Authx countries={extendedCountries} />
+```
+
+**New in v1.2.1:**
+
+- ✅ **Flexible Types**: No TypeScript errors when using partial country lists
+- ✅ **Auto-fallback**: Gracefully handles missing countries with fallback to defaults
+- ✅ **Better DX**: No type assertions needed
 
 Available countries by default:
 

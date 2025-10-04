@@ -1,5 +1,5 @@
 /* 
- * @al-hamoud/authx v1.0.0 - Comprehensive Examples
+ * @al-hamoud/authx v1.2.1 - Comprehensive Examples
  * Copy any of these examples into your Next.js app to use.
  * 
  * Features Showcase:
@@ -7,6 +7,7 @@
  * - Phase 2: Component styling, layout variants, CSS variables
  * - Phase 3: Animations, responsive design, accessibility
  * - Phase 4: Shadow system, custom fonts, gradients
+ * - v1.2.1: Improved countries configuration with flexible typing
  */
 
 'use client'

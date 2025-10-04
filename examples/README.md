@@ -1,4 +1,4 @@
-# Examples for @al-hamoud/authx v1.0.0
+# Examples for @al-hamoud/authx v1.2.1
 
 This folder contains comprehensive examples for the `<Authx />` component that now includes:
 
@@ -52,24 +52,24 @@ export default function BasicAuth() {
 ```tsx
 import { Authx, COUNTRIES } from '@al-hamoud/authx'
 
-// Use only specific countries
+// Use only specific countries (v1.2.1+ improved typing)
 const customCountries = {
   GB: COUNTRIES.GB,
   US: COUNTRIES.US,
-  AE: COUNTRIES.AE,
-  SA: COUNTRIES.SA,
 }
 
 export default function CustomCountriesAuth() {
   return (
     <Authx 
       countries={customCountries}
-      initialCountry="AE"
+      initialCountry="GB"
       visibility={{ hideCountryNames: true }}
     />
   )
 }
 ```
+
+> **Note:** v1.2.1+ features improved TypeScript typing for partial country lists and automatic fallback handling.
 
 ### Add Custom Country
 
