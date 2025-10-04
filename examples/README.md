@@ -47,6 +47,46 @@ export default function BasicAuth() {
 }
 ```
 
+### Custom Countries Configuration
+
+```tsx
+import { Authx, COUNTRIES } from '@al-hamoud/authx'
+
+// Use only specific countries
+const customCountries = {
+  GB: COUNTRIES.GB,
+  US: COUNTRIES.US,
+  AE: COUNTRIES.AE,
+  SA: COUNTRIES.SA,
+}
+
+export default function CustomCountriesAuth() {
+  return (
+    <Authx 
+      countries={customCountries}
+      initialCountry="AE"
+      visibility={{ hideCountryNames: true }}
+    />
+  )
+}
+```
+
+### Add Custom Country
+
+```tsx
+import { Authx, COUNTRIES } from '@al-hamoud/authx'
+
+const extendedCountries = {
+  ...COUNTRIES,
+  CA: { name: 'Canada', dial: '+1', flag: '🇨🇦', min: 10, max: 10 },
+  AU: { name: 'Australia', dial: '+61', flag: '🇦🇺', min: 9, max: 9 },
+}
+
+export default function ExtendedCountriesAuth() {
+  return <Authx countries={extendedCountries} />
+}
+```
+
 ### Premium Dark Theme (All Features)
 
 ```tsx

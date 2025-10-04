@@ -61,10 +61,12 @@ export async function POST(req: Request) {
 ```
 
 Request contract:
+
 - Method: POST
 - Body: `{ idToken: string }`
 
 Response (200):
+
 ```json
 {
   "ok": true,
@@ -89,6 +91,45 @@ Client Firebase config (`NEXT_PUBLIC_...`) is handled by your app’s Firebase S
 ```ts
 import type { FirebaseIdTokenPayload } from '@al-hamoud/authx'
 ```
+
+## UI Component
+
+The package also includes a React component for phone authentication:
+
+```tsx
+import { Authx } from '@al-hamoud/authx'
+
+<Authx 
+  verifyEndpoint="/api/auth/verify-id-token"
+  initialCountry="GB"
+/>
+```
+
+### Custom Countries Configuration
+
+You can customize the available countries in the phone number picker:
+
+```tsx
+import { Authx, COUNTRIES } from '@al-hamoud/authx'
+
+// Use only specific countries
+const customCountries = {
+  GB: COUNTRIES.GB,
+  US: COUNTRIES.US,
+  AE: COUNTRIES.AE,
+}
+
+<Authx countries={customCountries} />
+```
+
+Available countries by default:
+
+- 🇬🇧 GB: United Kingdom (+44)
+- 🇺🇸 US: United States (+1)
+- 🇦🇪 AE: UAE (+971)
+- 🇸🇦 SA: Saudi Arabia (+966)
+- 🇩🇪 DE: Germany (+49)
+- 🇫🇷 FR: France (+33)
 
 ## Security notes
 

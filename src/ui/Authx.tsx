@@ -13,6 +13,8 @@ const COUNTRIES = {
   FR: { name: 'France', dial: '+33', flag: '🇫🇷', min: 9, max: 9 },
 } as const
 
+export { COUNTRIES }
+
 export type CountryCode = keyof typeof COUNTRIES
 
 // Phase 1 Enhancement Types
@@ -179,8 +181,8 @@ function isValidE164(e164: string) {
   return /^\+\d{10,15}$/.test(e164)
 }
 
-function toE164(country: CountryCode, local: string) {
-  const { dial, min, max } = COUNTRIES[country]
+function toE164(country: CountryCode, local: string, countries = COUNTRIES) {
+  const { dial, min, max } = countries[country]
   const digits = local.replace(/\D/g, '')
   const e164 = `${dial}${digits}`
   const valid = digits.length >= min && digits.length <= max && isValidE164(e164)
@@ -192,6 +194,7 @@ export type AuthxProps = {
   verifyEndpoint?: string
   firebaseConfig?: FirebaseOptions
   initialCountry?: CountryCode
+  countries?: typeof COUNTRIES
   
   // Phase 1: Theme System
   theme?: ThemeType
@@ -611,6 +614,7 @@ export default function Authx({
   verifyEndpoint = '/api/auth/verify-id-token', 
   firebaseConfig: firebaseConfigProp, 
   initialCountry = 'GB',
+  countries,
   
   // Phase 1 props
   theme = 'light',
@@ -651,6 +655,9 @@ export default function Authx({
   typography,
   gradient
 }: AuthxProps) {
+  // Use provided countries or default COUNTRIES
+  const countriesConfig = countries || COUNTRIES;
+  
   // Phase 1: Compute enhanced styles (before any existing logic)
   const themeColors = getThemeColors(theme, colorScheme)
   const sizeConfig = getSizeConfig(size)
@@ -703,7 +710,7 @@ export default function Authx({
     error?: string
   }
 
-  const { e164, valid } = toE164(country, localPhone)
+  const { e164, valid } = toE164(country, localPhone, countriesConfig)
   const recaptchaRef = useRef<RecaptchaVerifier | null>(null)
   const confirmationRef = useRef<ConfirmationResult | null>(null)
   const didAutoSendRef = useRef(false)
@@ -915,7 +922,7 @@ export default function Authx({
           <div style={{ display: 'flex', gap: 8 }}>
             <div style={finalCountryBoxStyle}>
               {visibility.showFlags && (
-                <span style={{ marginRight: 6 }}>{COUNTRIES[country].flag}</span>
+                <span style={{ marginRight: 6 }}>{countriesConfig[country].flag}</span>
               )}
               <select
                 aria-label='Country'
@@ -923,7 +930,7 @@ export default function Authx({
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCountry(e.target.value as CountryCode)}
                 style={selectStyle}
               >
-                {Object.entries(COUNTRIES).map(([code, { name, dial }]) => (
+                {Object.entries(countriesConfig).map(([code, { name, dial }]) => (
                   <option key={code} value={code}>
                     {visibility.hideCountryNames ? dial : `${name} (${dial})`}
                   </option>
@@ -931,7 +938,7 @@ export default function Authx({
               </select>
               {visibility.showDialCode && (
                 <span style={{ marginLeft: 6, color: themeColors.text, fontWeight: 600 }}>
-                  {COUNTRIES[country].dial}
+                  {countriesConfig[country].dial}
                 </span>
               )}
             </div>

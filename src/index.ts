@@ -12,4 +12,7 @@ export type { VerifyRouteOptions } from './next/edge/handler';
 export { getEnv } from './utils/env';
 export { default as Authx } from './ui/Authx';
 
-export const version = '1.0.1';
+// Export COUNTRIES constant for custom country configurations
+export { COUNTRIES } from './ui/Authx';
+
+export const version = '1.2.0';
