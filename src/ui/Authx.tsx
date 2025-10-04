@@ -42,6 +42,7 @@ export type VisibilityControls = {
   showLabels?: boolean
   showFlags?: boolean
   showDialCode?: boolean
+  hideCountryNames?: boolean
 }
 
 // Phase 2 Enhancement Types
@@ -924,7 +925,7 @@ export default function Authx({
               >
                 {Object.entries(COUNTRIES).map(([code, { name, dial }]) => (
                   <option key={code} value={code}>
-                    {name} ({dial})
+                    {visibility.hideCountryNames ? dial : `${name} (${dial})`}
                   </option>
                 ))}
               </select>
