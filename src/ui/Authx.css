@@ -1,0 +1,175 @@
+/* Authx component styles (namespaced) */
+
+/* Theme variables (can be overridden by consumers) */
+.authx-container {
+  --authx-bg: #ffffff;
+  --authx-text: #111827;
+  --authx-border: #e5e7eb;
+  --authx-primary: #2563eb;
+  --authx-success: #10b981;
+  --authx-card-radius: 16px;
+  --authx-input-height: 48px;
+  --authx-font: Inter, system-ui, sans-serif;
+}
+
+.authx-theme-dark.authx-container {
+  --authx-bg: #1f2937;
+  --authx-text: #f9fafb;
+  --authx-border: #4b5563;
+  --authx-primary: #3b82f6;
+  --authx-success: #34d399;
+}
+
+/* Container sizing and responsive width */
+.authx-container {
+  margin: 0 auto;
+  font-family: var(--authx-font);
+  max-width: var(--authx-container-max, 420px);
+  border-radius: var(--authx-container-radius, 0);
+  padding: var(--authx-container-padding, 0);
+}
+
+@media (max-width: 480px) {
+  .authx-container {
+    width: var(--authx-mobile-width, 100%) !important;
+    max-width: 100% !important;
+    padding: 12px !important;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .authx-container {
+    width: var(--authx-tablet-width, 400px) !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .authx-container {
+    width: var(--authx-desktop-width, 480px) !important;
+  }
+}
+
+/* Card */
+.authx-card {
+  background: var(--authx-bg);
+  border-radius: var(--authx-card-radius);
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  display: grid;
+  gap: 12px;
+  color: var(--authx-text);
+  border: 1px solid var(--authx-border);
+}
+
+/* Typography */
+.authx-label {
+  font-size: 14px;
+  color: var(--authx-text);
+  font-weight: 600;
+}
+
+/* Layout helpers */
+.authx-row {
+  display: flex;
+  gap: 8px;
+}
+.authx-row-space-between { justify-content: space-between; }
+
+/* Country selector */
+.authx-country-box {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-radius: 12px;
+  border: 1px solid var(--authx-border);
+  height: var(--authx-input-height);
+  background: #f9fafb;
+}
+
+.authx-flag { margin-right: 6px; }
+.authx-select {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  outline: none;
+}
+.authx-dial {
+  margin-left: 6px;
+  color: var(--authx-text);
+  font-weight: 600;
+}
+
+/* Inputs */
+.authx-input {
+  flex: 1;
+  height: var(--authx-input-height);
+  border: 1px solid var(--authx-border);
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: 14px;
+  color: var(--authx-text);
+  background: var(--authx-bg);
+}
+
+.authx-otp-input {
+  width: 48px;
+  height: 56px;
+  text-align: center;
+  font-size: 20px;
+  border: 1px solid var(--authx-border);
+  border-radius: 12px;
+  color: var(--authx-text);
+  background: var(--authx-bg);
+}
+
+/* Buttons */
+.authx-button {
+  height: var(--authx-input-height);
+  background-color: var(--authx-primary);
+  color: #fff;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+.authx-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.authx-button-success {
+  background-color: var(--authx-success);
+}
+
+/* Status boxes */
+.authx-error {
+  padding: 8px 12px;
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  font-size: 13px;
+}
+.authx-status {
+  padding: 8px 12px;
+  background: #eff6ff;
+  color: #1e3a8a;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+/* Animations */
+@keyframes authx-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.authx-animations-enabled * {
+  animation: authx-fade-in 300ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .authx-animations-enabled * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

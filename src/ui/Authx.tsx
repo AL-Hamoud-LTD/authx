@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { initializeApp, getApps, type FirebaseOptions } from 'firebase/app'
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth'
+import './Authx.css'
 
 const COUNTRIES = {
   GB: { name: 'United Kingdom', dial: '+44', flag: '🇬🇧', min: 10, max: 10 },
@@ -852,16 +853,13 @@ export default function Authx({
 
   // Merge all styles for the container
   const containerStyle = {
-    maxWidth: width || 420, 
-    margin: '0 auto', 
-    fontFamily: fontFamily || 'Inter, system-ui, sans-serif',
+    maxWidth: width || 420,
     ...responsiveStyles,
     ...cssVarStyles,
-    ...animationStyles,
     ...shadowStyles,
     ...fontStyles,
     ...(gradientStyles.background || {})
-  }
+  } as React.CSSProperties
   
   // Enhanced component styles with gradients
   const enhancedFinalCardStyle = {
@@ -876,70 +874,28 @@ export default function Authx({
 
   return (
     <>
-      {animations?.enabled && (
-        <style>
-          {`
-            @keyframes authx-fade-in {
-              from { opacity: 0; transform: translateY(10px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-            
-            @media (prefers-reduced-motion: reduce) {
-              .authx-container * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-              }
-            }
-            
-            @media (max-width: 480px) {
-              .authx-container {
-                width: var(--authx-mobile-width, 100%) !important;
-                max-width: 100% !important;
-                padding: 12px !important;
-              }
-            }
-            
-            @media (min-width: 481px) and (max-width: 768px) {
-              .authx-container {
-                width: var(--authx-tablet-width, 400px) !important;
-              }
-            }
-            
-            @media (min-width: 769px) {
-              .authx-container {
-                width: var(--authx-desktop-width, 480px) !important;
-              }
-            }
-          `}
-        </style>
-      )}
-      <div 
-        className={`authx-container ${className || ''}`}
-        style={{
-          ...containerStyle,
-          ...(padding && { padding }),
-          ...(borderRadius && { borderRadius })
-        }}
+      {/* animations handled via CSS class authx-animations-enabled */}
+      <div
+        className={`authx-container ${animations?.enabled ? 'authx-animations-enabled' : ''} ${theme === 'dark' ? 'authx-theme-dark' : ''} ${className || ''}`}
         {...accessibilityProps}
       >
         {step === 'phone' && (
-        <div style={enhancedFinalCardStyle} className={cardClassName}>
+        <div className={`authx-card ${cardClassName || ''}`}>
           {visibility.showLabels && (
-            <label style={{...label, ...labelStyle}} className={labelClassName}>
+            <label className={`authx-label ${labelClassName || ''}`}>
               {customLabels.phoneNumber}
             </label>
           )}
-          <div style={{ display: 'flex', gap: 8 }}>
-            <div style={finalCountryBoxStyle}>
+          <div className="authx-row">
+            <div className="authx-country-box">
               {visibility.showFlags && (
-                <span style={{ marginRight: 6 }}>{countriesConfig[country].flag}</span>
+                <span className="authx-flag">{countriesConfig[country].flag}</span>
               )}
               <select
                 aria-label='Country'
                 value={country}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCountry(e.target.value as CountryCode)}
-                style={selectStyle}
+                className="authx-select"
               >
                 {Object.entries(countriesConfig).map(([code, { name, dial }]) => (
                   <option key={code} value={code}>
@@ -948,7 +904,7 @@ export default function Authx({
                 ))}
               </select>
               {visibility.showDialCode && (
-                <span style={{ marginLeft: 6, color: themeColors.text, fontWeight: 600 }}>
+                <span className="authx-dial">
                   {countriesConfig[country].dial}
                 </span>
               )}
@@ -959,33 +915,31 @@ export default function Authx({
               value={localPhone}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalPhone(e.target.value)}
               disabled={sending}
-              style={finalInputStyle}
-              className={inputClassName}
+              className={`authx-input ${inputClassName || ''}`}
             />
           </div>
           <button
             type='button'
             onClick={handleSend}
             disabled={!valid || sending}
-            style={{ ...enhancedFinalButtonStyle, opacity: !valid || sending ? 0.6 : 1 }}
-            className={buttonClassName}
+            className={`authx-button ${buttonClassName || ''}`}
           >
             {customLabels.sendCode}
           </button>
-          {!!error && <div style={finalErrorBoxStyle}>{error}</div>}
-          {!!status && <div style={finalStatusBoxStyle}>{status}</div>}
+          {!!error && <div className="authx-error">{error}</div>}
+          {!!status && <div className="authx-status">{status}</div>}
           <div id='authx-recaptcha' />
         </div>
       )}
 
       {step === 'otp' && (
-        <div style={enhancedFinalCardStyle} className={cardClassName}>
+        <div className={`authx-card ${cardClassName || ''}`}>
           {visibility.showLabels && (
-            <label style={{...label, ...labelStyle}} className={labelClassName}>
+            <label className={`authx-label ${labelClassName || ''}`}>
               {customLabels.enterCode}
             </label>
           )}
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'space-between' }}>
+          <div className="authx-row authx-row-space-between">
             {otp.map((d, i) => (
               <input
                 key={i}
@@ -994,7 +948,7 @@ export default function Authx({
                 maxLength={1}
                 value={d}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onOtpChange(i, e.target.value)}
-                style={finalOtpInputStyle}
+                className="authx-otp-input"
                 aria-label={`Digit ${i + 1}`}
               />
             ))}
@@ -1003,17 +957,16 @@ export default function Authx({
             type='button'
             onClick={handleVerify}
             disabled={sending || otpValue.length !== 6}
-            style={{ ...enhancedFinalButtonStyle, backgroundColor: themeColors.success }}
-            className={buttonClassName}
+            className={`authx-button authx-button-success ${buttonClassName || ''}`}
           >
             {customLabels.verify}
           </button>
-          {!!error && <div style={finalErrorBoxStyle}>{error}</div>}
-          {!!status && <div style={finalStatusBoxStyle}>{status}</div>}
+          {!!error && <div className="authx-error">{error}</div>}
+          {!!status && <div className="authx-status">{status}</div>}
         </div>
       )}
 
-      {step === 'done' && <div style={enhancedFinalCardStyle} className={cardClassName}>Phone verified successfully.</div>}
+      {step === 'done' && <div className={`authx-card ${cardClassName || ''}`}>Phone verified successfully.</div>}
       </div>
     </>
   )
