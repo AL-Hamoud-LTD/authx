@@ -904,14 +904,28 @@ export default function Authx({
   }, [enableWebOtp, step])
 
   function onOtpChange(idx: number, value: string) {
-    const d = value.replace(/\D/g, '')
-  setOtp((prev: string[]) => {
+    const digits = value.replace(/\D/g, '')
+    setOtp((prev: string[]) => {
       const next = [...prev]
-      next[idx] = d.slice(0, 1)
+      if (digits.length <= 1) {
+        next[idx] = digits
+      } else {
+        // Distribute across boxes when multiple digits arrive (e.g., iOS AutoFill)
+        for (let i = 0; i < digits.length && idx + i < 6; i++) {
+          next[idx + i] = digits.charAt(i)
+        }
+      }
       return next
     })
-    const nextEl = document.querySelector<HTMLInputElement>(`#authx-otp-${idx + 1}`)
-    if (d && nextEl) nextEl.focus()
+    // Move focus appropriately
+    if (digits.length > 1) {
+      const target = Math.min(idx + digits.length, 5)
+      const el = document.querySelector<HTMLInputElement>(`#authx-otp-${target}`)
+      el?.focus()
+    } else if (digits.length === 1) {
+      const el = document.querySelector<HTMLInputElement>(`#authx-otp-${idx + 1}`)
+      el?.focus()
+    }
   }
 
   function onOtpPaste(idx: number, e: React.ClipboardEvent<HTMLInputElement>) {
