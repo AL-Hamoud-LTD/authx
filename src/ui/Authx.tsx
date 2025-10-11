@@ -1209,8 +1209,8 @@ export default function Authx({
           >
             {customLabels.verify}
           </Button>
-          {!!error && <div className={cn("authx-error", "p-3 bg-red-50 text-red-900 border border-red-200 rounded-xl text-sm")}>{error}</div>}
-          {!!status && <div className={cn("authx-status", "p-3 bg-blue-50 text-blue-900 border border-blue-200 rounded-xl text-sm")}>{status}</div>}
+          {!!error && <div className={cn("authx-error")}>{error}</div>}
+          {!!status && <div className={cn("authx-status")}>{status}</div>}
           </CardContent>
         </Card>
       )}
