@@ -791,29 +791,42 @@ export default function Authx({
 
   const ensureRecaptcha = useCallback(async () => {
     const auth = getAuth()
+    // Return existing instance if already rendered
+    if (recaptchaRef.current) {
+      return recaptchaRef.current
+    }
     // Ensure the container ref is attached to the DOM
     if (!recaptchaContainerRef.current) {
       await new Promise((r) => setTimeout(r, 0))
     }
     if (!recaptchaRef.current && recaptchaContainerRef.current) {
-      recaptchaRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-        size: 'invisible',
-        callback: (response: any) => {
-          // reCAPTCHA solved, allow signInWithPhoneNumber
-          console.debug('reCAPTCHA solved:', response)
-        },
-        'expired-callback': () => {
-          // Response expired. Ask user to solve reCAPTCHA again
-          console.warn('reCAPTCHA expired, please try again')
-          setError('Verification expired. Please try again.')
-          // Clear the recaptcha instance to force re-render
-          if (recaptchaRef.current) {
-            recaptchaRef.current.clear()
-            recaptchaRef.current = null
+      try {
+        recaptchaRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+          size: 'invisible',
+          callback: (response: any) => {
+            // reCAPTCHA solved, allow signInWithPhoneNumber
+            console.debug('reCAPTCHA solved:', response)
+          },
+          'expired-callback': () => {
+            // Response expired. Ask user to solve reCAPTCHA again
+            console.warn('reCAPTCHA expired, please try again')
+            setError('Verification expired. Please try again.')
+            // Clear the recaptcha instance to force re-render
+            if (recaptchaRef.current) {
+              recaptchaRef.current.clear()
+              recaptchaRef.current = null
+            }
           }
+        })
+        await recaptchaRef.current.render()
+      } catch (error: any) {
+        // If already rendered, just return existing instance
+        if (error?.message?.includes('already been rendered')) {
+          console.warn('reCAPTCHA already rendered, reusing instance')
+          return recaptchaRef.current
         }
-      })
-      await recaptchaRef.current.render()
+        throw error
+      }
     }
     return recaptchaRef.current
   }, [])
