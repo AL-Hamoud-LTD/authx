@@ -758,6 +758,20 @@ export default function Authx({
     ensureFirebase(firebaseConfig)
   }, [firebaseConfig])
 
+  // Cleanup reCAPTCHA on unmount
+  useEffect(() => {
+    return () => {
+      if (recaptchaRef.current) {
+        try {
+          recaptchaRef.current.clear()
+        } catch (e) {
+          console.warn('Failed to clear reCAPTCHA on unmount:', e)
+        }
+        recaptchaRef.current = null
+      }
+    }
+  }, [])
+
   const otpValue = useMemo(() => otp.join(''), [otp])
   // Contact Picker (progressive enhancement)
   const contactPickerAvailable = useMemo(() => {
@@ -811,11 +825,8 @@ export default function Authx({
             // Response expired. Ask user to solve reCAPTCHA again
             console.warn('reCAPTCHA expired, please try again')
             setError('Verification expired. Please try again.')
-            // Clear the recaptcha instance to force re-render
-            if (recaptchaRef.current) {
-              recaptchaRef.current.clear()
-              recaptchaRef.current = null
-            }
+            // Don't clear immediately - let user retry with same instance
+            recaptchaRef.current = null
           }
         })
         await recaptchaRef.current.render()
@@ -847,15 +858,8 @@ export default function Authx({
       console.error(e)
       setError(e instanceof Error ? e.message : typeof e === 'string' ? e : 'Failed to send code')
       setStatus('')
-      // Reset reCAPTCHA on error so user can try again
-      if (recaptchaRef.current) {
-        try {
-          recaptchaRef.current.clear()
-          recaptchaRef.current = null
-        } catch (clearError) {
-          console.warn('Failed to clear reCAPTCHA:', clearError)
-        }
-      }
+      // Just reset ref, don't clear DOM to avoid null errors
+      recaptchaRef.current = null
     } finally {
       setSending(false)
     }
