@@ -266,6 +266,9 @@ export type AuthxProps = {
   // Focus management
   autoFocusPhone?: boolean
   autoFocusOtp?: boolean
+  // Hints
+  enablePhoneHint?: boolean
+  enableWebOtp?: boolean
 }
 
 // Helper functions for Phase 1 enhancements
@@ -672,8 +675,11 @@ export default function Authx({
   gradient
   ,
   // Focus props
-  autoFocusPhone = true,
-  autoFocusOtp = true
+  autoFocusPhone = false,
+  autoFocusOtp = false,
+  // Hint props
+  enablePhoneHint = true,
+  enableWebOtp = true
 }: AuthxProps) {
   // Use provided countries or default COUNTRIES
   const countriesConfig = countries || COUNTRIES;
@@ -862,6 +868,35 @@ export default function Authx({
     return () => window.clearTimeout(t)
   }, [step, autoFocusOtp])
 
+  // Web OTP progressive enhancement (fills OTP if available)
+  useEffect(() => {
+    if (!enableWebOtp) return
+    if (step !== 'otp') return
+    if (typeof window === 'undefined') return
+    // @ts-ignore: OTPCredential may be experimental
+    if (!('OTPCredential' in window) || !navigator.credentials) return
+    const ac = new AbortController()
+    ;(async () => {
+      try {
+        // @ts-ignore: experimental otp option
+        const cred = await navigator.credentials.get({
+          // @ts-ignore: experimental otp option
+          otp: { transport: ['sms'] },
+          signal: ac.signal
+        })
+        // @ts-ignore: cred may include .code
+        const code: string | undefined = cred && 'code' in (cred as any) ? (cred as any).code : undefined
+        if (code && typeof code === 'string') {
+          const digits = code.replace(/\D/g, '').slice(0, 6).split('')
+          if (digits.length === 6) {
+            setOtp(digits as string[])
+          }
+        }
+      } catch {}
+    })()
+    return () => ac.abort()
+  }, [enableWebOtp, step])
+
   function onOtpChange(idx: number, value: string) {
     const d = value.replace(/\D/g, '')
   setOtp((prev: string[]) => {
@@ -958,7 +993,11 @@ export default function Authx({
               )}
             </div>
             <input
-              type='tel'
+              // Phone input hints (non-intrusive)
+              type={enablePhoneHint ? 'tel' : 'text'}
+              name='phone'
+              inputMode={enablePhoneHint ? 'tel' : undefined}
+              autoComplete={enablePhoneHint ? 'tel' : undefined}
               placeholder={customLabels.placeholder}
               value={localPhone}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalPhone(e.target.value)}
@@ -992,7 +1031,12 @@ export default function Authx({
               <input
                 key={i}
                 id={`authx-otp-${i}`}
+                type='text'
+                name='otp'
                 inputMode='numeric'
+                autoComplete='one-time-code'
+                placeholder='6-digit code'
+                pattern='[0-9]*'
                 maxLength={1}
                 value={d}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onOtpChange(i, e.target.value)}
