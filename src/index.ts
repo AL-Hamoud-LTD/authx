@@ -15,4 +15,4 @@ export { default as Authx } from './ui/Authx';
 // Export COUNTRIES constant for custom country configurations
 export { COUNTRIES } from './ui/Authx';
 
-export const version = '1.2.1';
+export const version = '1.3.1';
