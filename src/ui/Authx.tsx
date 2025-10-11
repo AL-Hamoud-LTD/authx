@@ -754,7 +754,6 @@ export default function Authx({
 
   const { e164, valid } = toE164(country, localPhone, countriesConfig)
   const recaptchaRef = useRef<RecaptchaVerifier | null>(null)
-  const recaptchaContainerRef = useRef<HTMLDivElement | null>(null)
   const confirmationRef = useRef<ConfirmationResult | null>(null)
   const didAutoSendRef = useRef(false)
   const phoneInputRef = useRef<HTMLInputElement | null>(null)
@@ -810,45 +809,40 @@ export default function Authx({
 
   const ensureRecaptcha = useCallback(async () => {
     const auth = getAuth()
+    
     // Return existing instance if already rendered
     if (recaptchaRef.current) {
       return recaptchaRef.current
     }
-    // Ensure the container ref is attached to the DOM
-    if (!recaptchaContainerRef.current) {
-      // Wait for DOM to be ready with longer timeout
-      await new Promise((r) => setTimeout(r, 100))
-    }
-    // Double-check after waiting
-    if (!recaptchaContainerRef.current) {
-      throw new Error('reCAPTCHA container not found in DOM. Please try again.')
-    }
-    if (!recaptchaRef.current && recaptchaContainerRef.current) {
-      try {
-        recaptchaRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-          size: 'invisible',
-          callback: (response: any) => {
-            // reCAPTCHA solved, allow signInWithPhoneNumber
-            console.debug('reCAPTCHA solved:', response)
-          },
-          'expired-callback': () => {
-            // Response expired. Ask user to solve reCAPTCHA again
-            console.warn('reCAPTCHA expired, please try again')
-            setError('Verification expired. Please try again.')
-            // Don't clear immediately - let user retry with same instance
-            recaptchaRef.current = null
-          }
-        })
-        await recaptchaRef.current.render()
-      } catch (error: any) {
-        // If already rendered, just return existing instance
-        if (error?.message?.includes('already been rendered')) {
-          console.warn('reCAPTCHA already rendered, reusing instance')
-          return recaptchaRef.current
+    
+    // Create RecaptchaVerifier attached to the button (as per Firebase docs for invisible reCAPTCHA)
+    try {
+      recaptchaRef.current = new RecaptchaVerifier(auth, 'authx-send-button', {
+        'size': 'invisible',
+        'callback': (response: any) => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber
+          console.debug('reCAPTCHA solved:', response)
+        },
+        'expired-callback': () => {
+          // Response expired. Ask user to solve reCAPTCHA again
+          console.warn('reCAPTCHA expired, please try again')
+          setError('Verification expired. Please try again.')
+          recaptchaRef.current = null
         }
-        throw error
+      })
+      
+      // Render the invisible reCAPTCHA
+      await recaptchaRef.current.render()
+      
+    } catch (error: any) {
+      // If already rendered, reuse existing instance
+      if (error?.message?.includes('already been rendered')) {
+        console.warn('reCAPTCHA already rendered, reusing instance')
+        return recaptchaRef.current
       }
+      throw error
     }
+    
     return recaptchaRef.current
   }, [])
 
@@ -1156,6 +1150,7 @@ export default function Authx({
             <div className="text-sm text-muted-foreground" aria-live="polite">Tap the field to select your phone number.</div>
           )}
           <Button
+            id="authx-send-button"
             type='button'
             onClick={handleSend}
             disabled={!valid || sending}
@@ -1229,8 +1224,6 @@ export default function Authx({
           </CardContent>
         </Card>
       )}
-      {/* Keep reCAPTCHA container mounted across steps to avoid null refs inside recaptcha script */}
-      <div id='authx-recaptcha' ref={recaptchaContainerRef} />
       </div>
     </>
   )
