@@ -965,7 +965,7 @@ export default function Authx({
         {step === 'phone' && (
         <div className={`authx-card ${cardClassName || ''}`}>
           {visibility.showLabels && (
-            <label className={`authx-label ${labelClassName || ''}`}>
+            <label htmlFor="authx-phone" className={`authx-label ${labelClassName || ''}`}>
               {customLabels.phoneNumber}
             </label>
           )}
@@ -994,8 +994,9 @@ export default function Authx({
             </div>
             <input
               // Phone input hints (non-intrusive)
+              id='authx-phone'
               type={enablePhoneHint ? 'tel' : 'text'}
-              name='phone'
+              name='tel'
               inputMode={enablePhoneHint ? 'tel' : undefined}
               autoComplete={enablePhoneHint ? 'tel' : undefined}
               placeholder={customLabels.placeholder}
