@@ -1075,7 +1075,7 @@ export default function Authx({
                 autoComplete='one-time-code'
                 placeholder='6-digit code'
                 pattern='[0-9]*'
-                maxLength={1}
+                maxLength={i === 0 ? 6 : 1}
                 value={d}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onOtpChange(i, e.target.value)}
                 onPaste={(e: React.ClipboardEvent<HTMLInputElement>) => onOtpPaste(i, e)}
