@@ -262,6 +262,10 @@ export type AuthxProps = {
   fontFamily?: string
   typography?: TypographyConfig
   gradient?: GradientSystem
+
+  // Focus management
+  autoFocusPhone?: boolean
+  autoFocusOtp?: boolean
 }
 
 // Helper functions for Phase 1 enhancements
@@ -666,6 +670,10 @@ export default function Authx({
   fontFamily,
   typography,
   gradient
+  ,
+  // Focus props
+  autoFocusPhone = true,
+  autoFocusOtp = true
 }: AuthxProps) {
   // Use provided countries or default COUNTRIES
   const countriesConfig = countries || COUNTRIES;
@@ -726,6 +734,7 @@ export default function Authx({
   const recaptchaRef = useRef<RecaptchaVerifier | null>(null)
   const confirmationRef = useRef<ConfirmationResult | null>(null)
   const didAutoSendRef = useRef(false)
+  const phoneInputRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
     ensureFirebase(firebaseConfig)
@@ -813,6 +822,27 @@ export default function Authx({
   useEffect(() => {
     if (otpValue.length === 6) void handleVerify()
   }, [otpValue, handleVerify])
+
+  // Auto-focus phone input on phone step
+  useEffect(() => {
+    if (!autoFocusPhone) return
+    if (step !== 'phone') return
+    const t = window.setTimeout(() => {
+      phoneInputRef.current?.focus()
+    }, 0)
+    return () => window.clearTimeout(t)
+  }, [step, autoFocusPhone])
+
+  // Auto-focus first OTP box on otp step
+  useEffect(() => {
+    if (!autoFocusOtp) return
+    if (step !== 'otp') return
+    const t = window.setTimeout(() => {
+      const el = document.querySelector<HTMLInputElement>('#authx-otp-0')
+      el?.focus()
+    }, 0)
+    return () => window.clearTimeout(t)
+  }, [step, autoFocusOtp])
 
   function onOtpChange(idx: number, value: string) {
     const d = value.replace(/\D/g, '')
@@ -916,6 +946,7 @@ export default function Authx({
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalPhone(e.target.value)}
               disabled={sending}
               className={`authx-input ${inputClassName || ''}`}
+              ref={phoneInputRef}
             />
           </div>
           <button
