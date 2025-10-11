@@ -5,6 +5,11 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import { initializeApp, getApps, type FirebaseOptions } from 'firebase/app'
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth'
 import './Authx.css'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent } from '@/components/ui/card'
 
 const COUNTRIES = {
   GB: { name: 'United Kingdom', dial: '+44', flag: '🇬🇧', min: 10, max: 10 },
@@ -811,7 +816,12 @@ export default function Authx({
     }
     // Ensure the container ref is attached to the DOM
     if (!recaptchaContainerRef.current) {
-      await new Promise((r) => setTimeout(r, 0))
+      // Wait for DOM to be ready with longer timeout
+      await new Promise((r) => setTimeout(r, 100))
+    }
+    // Double-check after waiting
+    if (!recaptchaContainerRef.current) {
+      throw new Error('reCAPTCHA container not found in DOM. Please try again.')
     }
     if (!recaptchaRef.current && recaptchaContainerRef.current) {
       try {
@@ -890,7 +900,10 @@ export default function Authx({
         setStatus('Verified ✓')
         setStep('done')
       } else {
-        setError((json && json.error) || `Server rejected (${res.status})`)
+        const errorMsg = json && json.error
+          ? typeof json.error === 'string' ? json.error : JSON.stringify(json.error)
+          : `Server rejected (${res.status})`
+        setError(errorMsg)
         setStatus('')
       }
     } catch (e: unknown) {
@@ -907,7 +920,11 @@ export default function Authx({
     if (step !== 'phone') return
     if (valid && !didAutoSendRef.current) {
       didAutoSendRef.current = true
-      void handleSend()
+      // Add small delay to ensure DOM is ready
+      const timer = setTimeout(() => {
+        void handleSend()
+      }, 100)
+      return () => clearTimeout(timer)
     }
   }, [valid, step, handleSend])
 
@@ -1051,7 +1068,21 @@ export default function Authx({
     ...cssVarStyles,
     ...shadowStyles,
     ...fontStyles,
-    ...(gradientStyles.background || {})
+    ...(gradientStyles.background || {}),
+    // Add error/status box CSS variables for dynamic theming
+    '--authx-error-bg': finalErrorBoxStyle.backgroundColor || '#fef2f2',
+    '--authx-error-text': finalErrorBoxStyle.color || '#991b1b',
+    '--authx-error-border': finalErrorBoxStyle.borderColor || '#fecaca',
+    '--authx-error-radius': finalErrorBoxStyle.borderRadius ? `${finalErrorBoxStyle.borderRadius}px` : '12px',
+    '--authx-status-bg': finalStatusBoxStyle.backgroundColor || '#eff6ff',
+    '--authx-status-text': finalStatusBoxStyle.color || '#1e3a8a',
+    '--authx-status-border': finalStatusBoxStyle.borderColor || '#bfdbfe',
+    '--authx-status-radius': finalStatusBoxStyle.borderRadius ? `${finalStatusBoxStyle.borderRadius}px` : '12px',
+    // Add country box CSS variables for dynamic theming
+    '--authx-country-bg': finalCountryBoxStyle.backgroundColor || '#f9fafb',
+    '--authx-country-border': finalCountryBoxStyle.borderColor || '#e5e7eb',
+    '--authx-country-height': finalCountryBoxStyle.height ? `${finalCountryBoxStyle.height}px` : '48px',
+    '--authx-country-radius': finalCountryBoxStyle.borderRadius ? `${finalCountryBoxStyle.borderRadius}px` : '12px',
   } as React.CSSProperties
   
   // Enhanced component styles with gradients
@@ -1073,22 +1104,23 @@ export default function Authx({
         {...accessibilityProps}
       >
         {step === 'phone' && (
-        <div className={`authx-card ${cardClassName || ''}`}>
+        <Card className={cn("bg-white dark:bg-slate-900", cardClassName)} style={finalCardStyle}>
+          <CardContent className="space-y-3 pt-6">
           {visibility.showLabels && (
-            <label htmlFor="authx-phone" className={`authx-label ${labelClassName || ''}`}>
+            <Label htmlFor="authx-phone" className={cn("text-sm font-semibold", labelClassName)} style={labelStyle}>
               {customLabels.phoneNumber}
-            </label>
+            </Label>
           )}
-          <div className="authx-row">
-            <div className="authx-country-box">
+          <div className="flex gap-2">
+            <div className={cn("authx-country-box", "flex items-center px-2 rounded-xl border bg-secondary/50 h-12 min-w-fit")}>
               {visibility.showFlags && (
-                <span className="authx-flag">{countriesConfig[country].flag}</span>
+                <span className="mr-1.5">{countriesConfig[country].flag}</span>
               )}
               <select
                 aria-label='Country'
                 value={country}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCountry(e.target.value as CountryCode)}
-                className="authx-select"
+                className="border-none bg-transparent text-sm outline-none cursor-pointer"
               >
                 {Object.entries(countriesConfig).map(([code, { name, dial }]) => (
                   <option key={code} value={code}>
@@ -1097,13 +1129,12 @@ export default function Authx({
                 ))}
               </select>
               {visibility.showDialCode && (
-                <span className="authx-dial">
+                <span className="ml-1.5 font-semibold">
                   {countriesConfig[country].dial}
                 </span>
               )}
             </div>
-            <input
-              // Phone input hints (non-intrusive)
+            <Input
               id='authx-phone'
               type={enablePhoneHint ? 'tel' : 'text'}
               name='tel'
@@ -1113,39 +1144,43 @@ export default function Authx({
               value={localPhone}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalPhone(e.target.value)}
               disabled={sending}
-              className={`authx-input ${inputClassName || ''}`}
+              className={cn("flex-1", inputClassName)}
+              style={finalInputStyle}
               ref={phoneInputRef}
             />
           </div>
           {enableContactPicker && contactPickerAvailable && (
-            <div className="authx-helper"><button type='button' className="authx-link" onClick={handlePickContact}>Pick from contacts</button></div>
+            <div className="text-sm text-muted-foreground"><button type='button' className="text-primary hover:underline font-medium" onClick={handlePickContact}>Pick from contacts</button></div>
           )}
           {enablePhoneHint && (
-            <div className="authx-helper" aria-live="polite">Tap the field to select your phone number.</div>
+            <div className="text-sm text-muted-foreground" aria-live="polite">Tap the field to select your phone number.</div>
           )}
-          <button
+          <Button
             type='button'
             onClick={handleSend}
             disabled={!valid || sending}
-            className={`authx-button ${buttonClassName || ''}`}
+            className={cn("w-full", buttonClassName)}
+            style={finalButtonStyle}
           >
             {customLabels.sendCode}
-          </button>
-          {!!error && <div className="authx-error">{error}</div>}
-          {!!status && <div className="authx-status">{status}</div>}
-        </div>
+          </Button>
+          {!!error && <div className={cn("authx-error", "p-2 text-sm bg-destructive/10 text-destructive border border-destructive/20 rounded-xl")}>{error}</div>}
+          {!!status && <div className={cn("authx-status", "p-2 text-sm bg-primary/10 text-primary border border-primary/20 rounded-xl")}>{status}</div>}
+          </CardContent>
+        </Card>
       )}
 
       {step === 'otp' && (
-        <div className={`authx-card ${cardClassName || ''}`}>
+        <Card className={cn("bg-white dark:bg-slate-900", cardClassName)} style={finalCardStyle}>
+          <CardContent className="space-y-4 pt-6">
           {visibility.showLabels && (
-            <label className={`authx-label ${labelClassName || ''}`}>
+            <Label className={cn("text-sm font-semibold", labelClassName)} style={labelStyle}>
               {customLabels.enterCode}
-            </label>
+            </Label>
           )}
-          <div className="authx-row authx-row-space-between">
+          <div className="flex justify-between gap-2">
             {otp.map((d, i) => (
-              <input
+              <Input
                 key={i}
                 id={`authx-otp-${i}`}
                 type='text'
@@ -1157,7 +1192,8 @@ export default function Authx({
                 value={d}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onOtpChange(i, e.target.value)}
                 onPaste={(e: React.ClipboardEvent<HTMLInputElement>) => onOtpPaste(i, e)}
-                className="authx-otp-input"
+                className="w-12 h-14 text-center text-xl"
+                style={finalOtpInputStyle}
                 aria-label={`Digit ${i + 1}`}
               />
             ))}
@@ -1168,20 +1204,31 @@ export default function Authx({
           <div className="authx-helper">
             Didn’t get it? <button type='button' className='authx-link' onClick={handleSend} disabled={sending}>Resend code</button>
           </div>
-          <button
+          <Button
             type='button'
             onClick={handleVerify}
             disabled={sending || otpValue.length !== 6}
-            className={`authx-button authx-button-success ${buttonClassName || ''}`}
+            variant="success"
+            className={cn("w-full", buttonClassName)}
+            style={finalButtonStyle}
           >
             {customLabels.verify}
-          </button>
-          {!!error && <div className="authx-error">{error}</div>}
-          {!!status && <div className="authx-status">{status}</div>}
-        </div>
+          </Button>
+          {!!error && <div className={cn("authx-error", "p-3 bg-red-50 text-red-900 border border-red-200 rounded-xl text-sm")}>{error}</div>}
+          {!!status && <div className={cn("authx-status", "p-3 bg-blue-50 text-blue-900 border border-blue-200 rounded-xl text-sm")}>{status}</div>}
+          </CardContent>
+        </Card>
       )}
 
-      {step === 'done' && <div className={`authx-card ${cardClassName || ''}`}>Phone verified successfully.</div>}
+      {step === 'done' && (
+        <Card className={cn("bg-white dark:bg-slate-900", cardClassName)} style={finalCardStyle}>
+          <CardContent className="pt-6">
+            <div className="text-center text-green-600 dark:text-green-400 font-semibold">
+              Phone verified successfully.
+            </div>
+          </CardContent>
+        </Card>
+      )}
       {/* Keep reCAPTCHA container mounted across steps to avoid null refs inside recaptcha script */}
       <div id='authx-recaptcha' ref={recaptchaContainerRef} />
       </div>

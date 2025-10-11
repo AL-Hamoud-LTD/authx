@@ -1,5 +1,58 @@
 /* Authx component styles (namespaced) */
 
+/* Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* shadcn/ui CSS variables */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+  }
+}
+
 /* Theme variables (can be overridden by consumers) */
 .authx-container {
   --authx-bg: #ffffff;
@@ -10,6 +63,24 @@
   --authx-card-radius: 16px;
   --authx-input-height: 48px;
   --authx-font: Inter, system-ui, sans-serif;
+  
+  /* Error box variables */
+  --authx-error-bg: #fef2f2;
+  --authx-error-text: #991b1b;
+  --authx-error-border: #fecaca;
+  --authx-error-radius: 12px;
+  
+  /* Status box variables */
+  --authx-status-bg: #eff6ff;
+  --authx-status-text: #1e3a8a;
+  --authx-status-border: #bfdbfe;
+  --authx-status-radius: 12px;
+  
+  /* Country box variables */
+  --authx-country-bg: #f9fafb;
+  --authx-country-border: #e5e7eb;
+  --authx-country-height: 48px;
+  --authx-country-radius: 12px;
 }
 
 .authx-theme-dark.authx-container {
@@ -111,6 +182,19 @@
   background: var(--authx-bg);
 }
 
+/* Country selector box */
+.authx-country-box {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-radius: var(--authx-country-radius);
+  border: 1px solid var(--authx-country-border);
+  height: var(--authx-country-height);
+  background: var(--authx-country-bg);
+  min-width: -webkit-fill-available; /* Samsung Internet 5.0+ fallback */
+  min-width: fit-content;
+}
+
 .authx-otp-input {
   width: 48px;
   height: 56px;
@@ -143,18 +227,18 @@
 /* Status boxes */
 .authx-error {
   padding: 8px 12px;
-  background: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
-  border-radius: 12px;
+  background: var(--authx-error-bg);
+  color: var(--authx-error-text);
+  border: 1px solid var(--authx-error-border);
+  border-radius: var(--authx-error-radius);
   font-size: 13px;
 }
 .authx-status {
   padding: 8px 12px;
-  background: #eff6ff;
-  color: #1e3a8a;
-  border: 1px solid #bfdbfe;
-  border-radius: 12px;
+  background: var(--authx-status-bg);
+  color: var(--authx-status-text);
+  border: 1px solid var(--authx-status-border);
+  border-radius: var(--authx-status-radius);
   font-size: 13px;
 }
 

@@ -1,0 +1,126 @@
+      {step === 'phone' && (
+        <Card className={cn("bg-white dark:bg-slate-900", cardClassName)} style={finalCardStyle}>
+          <CardContent className="space-y-3 pt-6">
+          {visibility.showLabels && (
+            <Label htmlFor="authx-phone" className={cn("text-sm font-semibold", labelClassName)} style={labelStyle}>
+              {customLabels.phoneNumber}
+            </Label>
+          )}
+          <div className="flex gap-2">
+            <div className="flex items-center px-2 rounded-xl border bg-secondary/50 h-12 min-w-fit" style={finalCountryBoxStyle}>
+              {visibility.showFlags && (
+                <span className="mr-1.5">{countriesConfig[country].flag}</span>
+              )}
+              <select
+                aria-label='Country'
+                value={country}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCountry(e.target.value as CountryCode)}
+                className="border-none bg-transparent text-sm outline-none cursor-pointer"
+              >
+                {Object.entries(countriesConfig).map(([code, { name, dial }]) => (
+                  <option key={code} value={code}>
+                    {visibility.hideCountryNames ? dial : `${name} (${dial})`}
+                  </option>
+                ))}
+              </select>
+              {visibility.showDialCode && (
+                <span className="ml-1.5 font-semibold">
+                  {countriesConfig[country].dial}
+                </span>
+              )}
+            </div>
+            <Input
+              id='authx-phone'
+              type={enablePhoneHint ? 'tel' : 'text'}
+              name='tel'
+              inputMode={enablePhoneHint ? 'tel' : undefined}
+              autoComplete={enablePhoneHint ? phoneAutocomplete : undefined}
+              placeholder={customLabels.placeholder}
+              value={localPhone}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalPhone(e.target.value)}
+              disabled={sending}
+              className={cn("flex-1", inputClassName)}
+              style={finalInputStyle}
+              ref={phoneInputRef}
+            />
+          </div>
+          {enableContactPicker && contactPickerAvailable && (
+            <div className="text-sm text-muted-foreground"><button type='button' className="text-primary hover:underline font-medium" onClick={handlePickContact}>Pick from contacts</button></div>
+          )}
+          {enablePhoneHint && (
+            <div className="text-sm text-muted-foreground" aria-live="polite">Tap the field to select your phone number.</div>
+          )}
+          <Button
+            type='button'
+            onClick={handleSend}
+            disabled={!valid || sending}
+            className={cn("w-full", buttonClassName)}
+            style={finalButtonStyle}
+          >
+            {customLabels.sendCode}
+          </Button>
+          {!!error && <div className={cn("p-2 text-sm bg-destructive/10 text-destructive border border-destructive/20 rounded-xl")} style={finalErrorBoxStyle}>{error}</div>}
+          {!!status && <div className={cn("p-2 text-sm bg-primary/10 text-primary border border-primary/20 rounded-xl")} style={finalStatusBoxStyle}>{status}</div>}
+          </CardContent>
+        </Card>
+      )}
+
+      {step === 'otp' && (
+        <Card className={cn("bg-white dark:bg-slate-900", cardClassName)} style={finalCardStyle}>
+          <CardContent className="space-y-4 pt-6">
+            {visibility.showLabels && (
+              <Label className={cn("text-sm font-semibold", labelClassName)} style={labelStyle}>
+                {customLabels.enterCode}
+              </Label>
+            )}
+            <div className="flex justify-between gap-2">
+              {otp.map((d, i) => (
+                <Input
+                  key={i}
+                  id={`authx-otp-${i}`}
+                  type='text'
+                  name='otp'
+                  inputMode='numeric'
+                  autoComplete='one-time-code'
+                  pattern='[0-9]*'
+                  maxLength={i === 0 ? 6 : 1}
+                  value={d}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => onOtpChange(i, e.target.value)}
+                  onPaste={(e: React.ClipboardEvent<HTMLInputElement>) => onOtpPaste(i, e)}
+                  className="w-12 h-14 text-center text-xl"
+                  style={finalOtpInputStyle}
+                  aria-label={`Digit ${i + 1}`}
+                />
+              ))}
+            </div>
+            {enableWebOtp && (
+              <div className="text-sm text-muted-foreground" aria-live="polite">Your code may be auto-detected for security; you might not see it in your messages.</div>
+            )}
+            <div className="text-sm text-muted-foreground">
+              Didn't get it? <button type='button' className='text-primary hover:underline font-medium' onClick={handleSend} disabled={sending}>Resend code</button>
+            </div>
+            <Button
+              type='button'
+              onClick={handleVerify}
+              disabled={sending || otpValue.length !== 6}
+              variant="success"
+              className={cn("w-full", buttonClassName)}
+              style={finalButtonStyle}
+            >
+              {customLabels.verify}
+            </Button>
+            {!!error && <div className={cn("p-3 bg-red-50 text-red-900 border border-red-200 rounded-xl text-sm")} style={finalErrorBoxStyle}>{error}</div>}
+            {!!status && <div className={cn("p-3 bg-blue-50 text-blue-900 border border-blue-200 rounded-xl text-sm")} style={finalStatusBoxStyle}>{status}</div>}
+          </CardContent>
+        </Card>
+      )}
+
+      {step === 'done' && (
+        <Card className={cn("bg-white dark:bg-slate-900", cardClassName)} style={finalCardStyle}>
+          <CardContent className="pt-6">
+            <div className="text-center text-green-600 dark:text-green-400 font-semibold">
+              Phone verified successfully.
+            </div>
+          </CardContent>
+        </Card>
+      )}

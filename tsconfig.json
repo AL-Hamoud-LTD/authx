@@ -44,6 +44,11 @@
 
     "moduleResolution": "bundler",
     "esModuleInterop": true,
+    
+    // Path aliases for shadcn/ui (without deprecated baseUrl)
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "examples"]
