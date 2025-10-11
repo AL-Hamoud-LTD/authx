@@ -275,6 +275,9 @@ export type AuthxProps = {
   // Hints
   enablePhoneHint?: boolean
   enableWebOtp?: boolean
+  // Phone entry helpers
+  enableContactPicker?: boolean
+  phoneAutocomplete?: 'tel' | 'tel-national' | 'tel-local' | string
 }
 
 // Helper functions for Phase 1 enhancements
@@ -685,7 +688,9 @@ export default function Authx({
   autoFocusOtp = false,
   // Hint props
   enablePhoneHint = true,
-  enableWebOtp = true
+  enableWebOtp = true,
+  enableContactPicker = true,
+  phoneAutocomplete = 'tel'
 }: AuthxProps) {
   // Use provided countries or default COUNTRIES
   const countriesConfig = countries || COUNTRIES;
@@ -754,6 +759,35 @@ export default function Authx({
   }, [firebaseConfig])
 
   const otpValue = useMemo(() => otp.join(''), [otp])
+  // Contact Picker (progressive enhancement)
+  const contactPickerAvailable = useMemo(() => {
+    return typeof navigator !== 'undefined' && (navigator as any).contacts && typeof (navigator as any).contacts.select === 'function'
+  }, [])
+
+  const handlePickContact = useCallback(async () => {
+    try {
+      const navAny = navigator as any
+      if (!navAny?.contacts?.select) return
+      const contacts = await navAny.contacts.select(['tel'], { multiple: false })
+      if (contacts && contacts[0] && contacts[0].tel && contacts[0].tel[0]) {
+        const picked: string = contacts[0].tel[0]
+        // Attempt to parse and set country + local number
+        try {
+          const parsed = parsePhoneNumberFromString(picked)
+          if (parsed) {
+            const c = parsed.country as CountryCode | undefined
+            if (c && COUNTRIES[c]) setCountry(c)
+            setLocalPhone(parsed.nationalNumber || picked)
+            return
+          }
+        } catch {}
+        setLocalPhone(picked)
+      }
+    } catch (err) {
+      console.warn('Contact pick cancelled or failed', err)
+    }
+  }, [])
+
 
   const ensureRecaptcha = useCallback(async () => {
     const auth = getAuth()
@@ -1032,7 +1066,7 @@ export default function Authx({
               type={enablePhoneHint ? 'tel' : 'text'}
               name='tel'
               inputMode={enablePhoneHint ? 'tel' : undefined}
-              autoComplete={enablePhoneHint ? 'tel' : undefined}
+              autoComplete={enablePhoneHint ? phoneAutocomplete : undefined}
               placeholder={customLabels.placeholder}
               value={localPhone}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalPhone(e.target.value)}
@@ -1041,6 +1075,9 @@ export default function Authx({
               ref={phoneInputRef}
             />
           </div>
+          {enableContactPicker && contactPickerAvailable && (
+            <div className="authx-helper"><button type='button' className="authx-link" onClick={handlePickContact}>Pick from contacts</button></div>
+          )}
           {enablePhoneHint && (
             <div className="authx-helper" aria-live="polite">Tap the field to select your phone number.</div>
           )}
@@ -1073,7 +1110,6 @@ export default function Authx({
                 name='otp'
                 inputMode='numeric'
                 autoComplete='one-time-code'
-                placeholder='6-digit code'
                 pattern='[0-9]*'
                 maxLength={i === 0 ? 6 : 1}
                 value={d}
@@ -1087,6 +1123,9 @@ export default function Authx({
           {enableWebOtp && (
             <div className="authx-helper" aria-live="polite">Your code may be auto-detected for security; you might not see it in your messages.</div>
           )}
+          <div className="authx-helper">
+            Didn’t get it? <button type='button' className='authx-link' onClick={handleSend} disabled={sending}>Resend code</button>
+          </div>
           <button
             type='button'
             onClick={handleVerify}

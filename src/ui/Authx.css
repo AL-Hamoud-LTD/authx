@@ -165,6 +165,16 @@
   color: #6b7280; /* gray-500 */
 }
 
+.authx-link {
+  background: none;
+  border: none;
+  color: var(--authx-primary);
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+  text-decoration: underline;
+}
+
 /* Animations */
 @keyframes authx-fade-in {
   from { opacity: 0; transform: translateY(10px); }
