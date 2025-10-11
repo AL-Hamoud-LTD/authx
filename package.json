@@ -1,6 +1,6 @@
 {
     "name": "@al-hamoud/authx",
-    "version": "1.3.6",
+    "version": "1.3.7",
     "description": "Auth toolkit: Firebase JWKS verify + Supabase user ensure for Next.js Edge runtime",
     "main": "dist/index.cjs",
     "module": "dist/index.js",
@@ -65,7 +65,8 @@
     },
     "dependencies": {
         "@supabase/supabase-js": "^2.58.0",
-        "jose": "^6.1.0"
+        "jose": "^6.1.0",
+        "libphonenumber-js": "^1.11.6"
     },
     "peerDependencies": {
         "firebase": ">=12",

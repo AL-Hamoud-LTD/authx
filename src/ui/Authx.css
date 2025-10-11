@@ -158,6 +158,13 @@
   font-size: 13px;
 }
 
+/* Helper text */
+.authx-helper {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #6b7280; /* gray-500 */
+}
+
 /* Animations */
 @keyframes authx-fade-in {
   from { opacity: 0; transform: translateY(10px); }

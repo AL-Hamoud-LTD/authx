@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import { initializeApp, getApps, type FirebaseOptions } from 'firebase/app'
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth'
 import './Authx.css'
@@ -183,21 +184,26 @@ function isValidE164(e164: string) {
 }
 
 function toE164(country: CountryCode, local: string, countries: Record<string, { name: string; dial: string; flag: string; min: number; max: number }> = COUNTRIES) {
+  // Try robust parsing first (handles either E.164 like +44... or national like 079...)
+  try {
+    const parsed = parsePhoneNumberFromString(local, country)
+    if (parsed) {
+      return { e164: parsed.number, valid: parsed.isValid() }
+    }
+  } catch {}
+  // Fallback to previous logic with basic duplication guard
   const countryInfo = countries[country]
-  if (!countryInfo) {
-    // Fallback to default countries if country not found
-    const fallbackInfo = COUNTRIES[country as keyof typeof COUNTRIES]
-    if (!fallbackInfo) return { e164: '', valid: false }
-    const { dial, min, max } = fallbackInfo
-    const digits = local.replace(/\D/g, '')
-    const e164 = `${dial}${digits}`
-    const valid = digits.length >= min && digits.length <= max && isValidE164(e164)
-    return { e164, valid }
+  const info = countryInfo || COUNTRIES[country as keyof typeof COUNTRIES]
+  if (!info) return { e164: '', valid: false }
+  const dial = info.dial // e.g. +44
+  const dialDigits = dial.replace('+', '')
+  let digits = local.replace(/\D/g, '')
+  // Remove duplicated country code if user/autofill provided it
+  if (digits.startsWith(dialDigits)) {
+    digits = digits.slice(dialDigits.length)
   }
-  const { dial, min, max } = countryInfo
-  const digits = local.replace(/\D/g, '')
   const e164 = `${dial}${digits}`
-  const valid = digits.length >= min && digits.length <= max && isValidE164(e164)
+  const valid = isValidE164(e164)
   return { e164, valid }
 }
 
@@ -908,6 +914,20 @@ export default function Authx({
     if (d && nextEl) nextEl.focus()
   }
 
+  function onOtpPaste(idx: number, e: React.ClipboardEvent<HTMLInputElement>) {
+    const text = e.clipboardData?.getData('text') || ''
+    const digits = text.replace(/\D/g, '')
+    if (!digits) return
+    e.preventDefault()
+    setOtp((prev) => {
+      const next = [...prev]
+      for (let i = 0; i < Math.min(6 - idx, digits.length); i++) {
+        next[idx + i] = digits.charAt(i)
+      }
+      return next
+    })
+  }
+
   // Phase 2: Compute final merged styles (after original styles are available)
   const finalCardStyle = mergeComponentStyles(defaultCard, _cardStyle, cardStyleProp)
   const finalInputStyle = mergeComponentStyles(defaultInputStyle, _inputStyleEnhanced, inputStyle)
@@ -1007,6 +1027,9 @@ export default function Authx({
               ref={phoneInputRef}
             />
           </div>
+          {enablePhoneHint && (
+            <div className="authx-helper" aria-live="polite">Tap the field to select your phone number.</div>
+          )}
           <button
             type='button'
             onClick={handleSend}
@@ -1041,11 +1064,15 @@ export default function Authx({
                 maxLength={1}
                 value={d}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onOtpChange(i, e.target.value)}
+                onPaste={(e: React.ClipboardEvent<HTMLInputElement>) => onOtpPaste(i, e)}
                 className="authx-otp-input"
                 aria-label={`Digit ${i + 1}`}
               />
             ))}
           </div>
+          {enableWebOtp && (
+            <div className="authx-helper" aria-live="polite">Your code may be auto-detected for security; you might not see it in your messages.</div>
+          )}
           <button
             type='button'
             onClick={handleVerify}
