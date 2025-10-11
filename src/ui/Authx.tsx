@@ -732,6 +732,7 @@ export default function Authx({
 
   const { e164, valid } = toE164(country, localPhone, countriesConfig)
   const recaptchaRef = useRef<RecaptchaVerifier | null>(null)
+  const recaptchaContainerRef = useRef<HTMLDivElement | null>(null)
   const confirmationRef = useRef<ConfirmationResult | null>(null)
   const didAutoSendRef = useRef(false)
   const phoneInputRef = useRef<HTMLInputElement | null>(null)
@@ -744,8 +745,12 @@ export default function Authx({
 
   const ensureRecaptcha = useCallback(async () => {
     const auth = getAuth()
-    if (!recaptchaRef.current) {
-      recaptchaRef.current = new RecaptchaVerifier(auth, 'authx-recaptcha', { size: 'invisible' })
+    // Ensure the container ref is attached to the DOM
+    if (!recaptchaContainerRef.current) {
+      await new Promise((r) => setTimeout(r, 0))
+    }
+    if (!recaptchaRef.current && recaptchaContainerRef.current) {
+      recaptchaRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, { size: 'invisible' })
       await recaptchaRef.current.render()
     }
     return recaptchaRef.current
@@ -822,6 +827,19 @@ export default function Authx({
   useEffect(() => {
     if (otpValue.length === 6) void handleVerify()
   }, [otpValue, handleVerify])
+
+  // Cleanup reCAPTCHA on unmount
+  useEffect(() => {
+    return () => {
+      try {
+        // clear() removes the widget and associated resources if present
+        // Optional chaining in case different firebase versions vary
+        // @ts-ignore - .clear may not be in typings for some versions
+        recaptchaRef.current?.clear?.()
+      } catch {}
+      recaptchaRef.current = null
+    }
+  }, [])
 
   // Auto-focus phone input on phone step
   useEffect(() => {
@@ -959,7 +977,6 @@ export default function Authx({
           </button>
           {!!error && <div className="authx-error">{error}</div>}
           {!!status && <div className="authx-status">{status}</div>}
-          <div id='authx-recaptcha' />
         </div>
       )}
 
@@ -998,6 +1015,8 @@ export default function Authx({
       )}
 
       {step === 'done' && <div className={`authx-card ${cardClassName || ''}`}>Phone verified successfully.</div>}
+      {/* Keep reCAPTCHA container mounted across steps to avoid null refs inside recaptcha script */}
+      <div id='authx-recaptcha' ref={recaptchaContainerRef} />
       </div>
     </>
   )
