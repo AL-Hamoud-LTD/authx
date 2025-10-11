@@ -796,7 +796,23 @@ export default function Authx({
       await new Promise((r) => setTimeout(r, 0))
     }
     if (!recaptchaRef.current && recaptchaContainerRef.current) {
-      recaptchaRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, { size: 'invisible' })
+      recaptchaRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+        size: 'invisible',
+        callback: (response: any) => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber
+          console.debug('reCAPTCHA solved:', response)
+        },
+        'expired-callback': () => {
+          // Response expired. Ask user to solve reCAPTCHA again
+          console.warn('reCAPTCHA expired, please try again')
+          setError('Verification expired. Please try again.')
+          // Clear the recaptcha instance to force re-render
+          if (recaptchaRef.current) {
+            recaptchaRef.current.clear()
+            recaptchaRef.current = null
+          }
+        }
+      })
       await recaptchaRef.current.render()
     }
     return recaptchaRef.current
@@ -818,6 +834,15 @@ export default function Authx({
       console.error(e)
       setError(e instanceof Error ? e.message : typeof e === 'string' ? e : 'Failed to send code')
       setStatus('')
+      // Reset reCAPTCHA on error so user can try again
+      if (recaptchaRef.current) {
+        try {
+          recaptchaRef.current.clear()
+          recaptchaRef.current = null
+        } catch (clearError) {
+          console.warn('Failed to clear reCAPTCHA:', clearError)
+        }
+      }
     } finally {
       setSending(false)
     }
